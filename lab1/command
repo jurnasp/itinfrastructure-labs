@@ -1,0 +1,1 @@
+ansible -m shell -a 'ps -eF' -u urmas -i lab1/inventory devices -k
