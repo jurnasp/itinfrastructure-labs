@@ -1,0 +1,51 @@
+---
+- name: First play
+  hosts: devices
+  remote_user: urmas
+  become: yes
+  tasks:
+
+  - name: First task
+    ping:
+
+  - name: place ssh keys
+    authorized_key:
+      user: urmas
+      key: https://github.com/JyrnasPluutus.keys
+
+  - name: ensure group "sysadmins" exists
+    group:
+      name: sysadmins
+
+  - name: User romankuchin
+    user:
+     name: romankuchin
+     group: sysadmins
+
+  - name: User hudolejev
+    user:
+     name: hudolejev
+     group: sysadmins
+
+  - name: place romankuchin ssh key
+    authorized_key:
+      user: romankuchin
+      key: https://github.com/romankuchin.keys
+
+  - name: place hudolejev ssh key
+    authorized_key:
+      user: hudolejev
+      key: https://github.com/hudolejev.keys
+
+  - name: disable sudo pass
+    copy:
+      dest: /etc/sudoers.d/user
+      content: "urmas      ALL = NOPASSWD: ALL"
+
+  - name: Show proc list
+    command: "netstat -ntlp"
+    register: commandname
+
+  - name: Show output
+    debug:
+     var: commandname.stdout_lines
