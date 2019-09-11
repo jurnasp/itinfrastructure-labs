@@ -1,7 +1,7 @@
 ---
 - name: First play
   hosts: devices
-  remote_user: urmas
+  remote_user: user
   become: yes
   tasks:
 
@@ -10,7 +10,7 @@
 
   - name: place ssh keys
     authorized_key:
-      user: urmas
+      user: user
       key: https://github.com/JyrnasPluutus.keys
 
   - name: ensure group "sysadmins" exists
@@ -40,7 +40,7 @@
   - name: disable sudo pass
     copy:
       dest: /etc/sudoers.d/user
-      content: "urmas      ALL = NOPASSWD: ALL"
+      content: "user      ALL = NOPASSWD: ALL"
 
   - name: Show proc list
     command: "netstat -ntlp"
