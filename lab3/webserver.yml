@@ -1,0 +1,63 @@
+---
+- name: First play
+  hosts: devices
+  remote_user: user
+  become: yes
+  vars:
+    http_port: 8080
+    domain: localhost
+  tasks:
+  - name: First task
+    ping:
+
+  - name: place ssh keys
+    authorized_key:
+      user: user
+      key: https://github.com/JyrnasPluutus.keys
+
+  - name: ensure group "sysadmins" exists
+    group:
+      name: sysadmins
+
+  - name: disable sudo pass
+    copy:
+      dest: /etc/sudoers.d/user
+      content: "user      ALL = NOPASSWD: ALL"
+
+  - name: install apache2
+    apt: name=apache2 update_cache=yes state=latest
+
+  - name: apache2 listen on port {{ http_port }}
+    lineinfile:
+      path: /etc/apache2/ports.conf
+      insertafter: "^Listen 80"
+      line: "Listen {{ http_port }}"
+    notify:
+      - restart apache2
+
+  - name: virthost {{ http_port }}
+    template:
+      src: virtualhost.conf
+      dest: /etc/apache2/sites-available/{{ domain }}.conf
+    notify:
+      - restart apache2
+
+  - name: a2ensite {{ domain }}
+    command: a2ensite {{ domain }}
+    notify:
+      - restart apache2
+
+  - name: install php
+    apt: 
+      name: php
+      update_cache: yes
+      state: latest
+
+  - name: create index.php file
+    copy:
+     dest: /var/www/html/index.php
+     content: "<?php echo phpinfo();"
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
