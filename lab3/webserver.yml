@@ -56,7 +56,7 @@
   - name: create index.php file
     copy:
      dest: /var/www/html/index.php
-     content: "<?php echo phpinfo();"
+     content: "<?php phpinfo();"
 
   handlers:
     - name: restart apache2
