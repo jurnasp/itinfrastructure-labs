@@ -1,0 +1,45 @@
+---
+- name: Apache configuration and php
+  hosts: devices
+  remote_user: user
+  become: yes
+  vars_files:
+    - "variables/apache"
+  tasks:
+
+  - name: apt install
+    apt:
+      name: 
+        - apache2
+        - mysql-server
+        - php
+        - php-mysql
+        - python-mysqldb
+      update_cache: yes
+      state: latest
+
+  - name: apache2 listen on port {{ http_port }}
+    lineinfile:
+      path: /etc/apache2/ports.conf
+      insertafter: "^Listen 80"
+      line: "Listen {{ http_port }}"
+    notify:
+      - restart apache2
+
+  - name: virthost {{ http_port }}
+    template:
+      src: templates/virtualhost.conf
+      dest: /etc/apache2/sites-available/{{ server_hostname }}.conf
+    notify:
+      - restart apache2
+
+  - name: a2ensite {{ server_hostname }}
+    command: a2ensite {{ server_hostname }}
+    args:
+      creates: /etc/apache2/sites-enabled/{{ server_hostname }}.conf
+    notify:
+      - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

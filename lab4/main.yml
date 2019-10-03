@@ -1,0 +1,6 @@
+---
+- import_playbook: apache_php.yml
+
+- import_playbook: mysql.yml
+
+- import_playbook: wordpress.yml

@@ -1,0 +1,37 @@
+---
+- name: Mysql setup for wordpress
+  hosts: devices
+  remote_user: user
+  become: yes
+  vars_files:
+    - "variables/wp"
+  tasks:
+  - name: Start MySQL service
+    service:
+      name: mysql
+      state: started
+
+  - name: Set root user pass
+    mysql_user:
+      name: root
+      host: 127.0.0.2
+      password: "{{ password }}"
+      priv: "*.*:ALL,GRANT"
+
+  - name: Copy .my.cnf
+    template:
+      src: templates/.my.cnf
+      dest: /root/.my.cnf
+      owner: root
+      mode: 0600
+
+  - name: Create mysql user
+    mysql_user:
+      name: "{{ wp_db_user }}"
+      password: "{{ password }}"
+      priv: "*.*:ALL"
+
+  - name: Create mysql database
+    mysql_db:
+      name: "{{ wp_db_name }}"
+      state: present
