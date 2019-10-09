@@ -1,0 +1,28 @@
+zone "pythonux.ttu" {
+{% if dns_role == "master" %}
+	type master;
+	file "/etc/bind/db.pythonux";
+  allow-transfer { {{ slave_ip }};};
+	notify yes;
+{% else %}
+  type slave;
+  file "/var/lib/bind/db.pythonux";
+  masters {
+    {{ master_ip }};
+  };
+{% endif %}
+};
+
+zone "56.168.192.in-addr.arpa" {
+{% if dns_role == "master" %}
+	type master;
+	file "/etc/bind/db.pythonux.ptr";
+  allow-transfer { {{ slave_ip }};};
+{% else %}
+  type slave;
+  file "/var/lib/bind/db.pythonux.ptr";
+  masters {
+    {{ master_ip }};
+  };
+{% endif %}
+};

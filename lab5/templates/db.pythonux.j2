@@ -1,0 +1,15 @@
+$TTL	604800
+@	IN	SOA	pythonux.ttu. root.pythonux.ttu. (
+		{{ ts.stdout }}	; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+{% for dns in resources %}
+{% if dns.type == 'A' %}
+{{dns.name}} IN {{dns.type}} {{dns.adr}}
+{% elif dns.type == 'CNAME'%}
+{{dns.name}} {{dns.type}} {{dns.adr}}
+{% endif%}
+{% endfor %}

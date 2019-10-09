@@ -1,0 +1,28 @@
+---
+forwarders:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.10
+localnets:
+  - 192.168.56.0/24
+  - 10.0.2.0/24
+  - localhost
+resources:
+  - name: pythonux.ttu.
+    type: NS
+    adr: infra01.pythonux.ttu.
+  - name: pythonux.ttu.
+    type: NS
+    adr: infra02.pythonux.ttu.
+  - name: infra01.pythonux.ttu.
+    type: A
+    adr: 192.168.56.3
+  - name: infra02.pythonux.ttu.
+    type: A
+    adr: 192.168.56.4
+  - name: ns.pythonux.ttu.
+    type: CNAME
+    adr: infra01.pythonux.ttu.
+  - name: ns.pythonux.ttu.
+    type: CNAME
+    adr: infra02.pythonux.ttu.

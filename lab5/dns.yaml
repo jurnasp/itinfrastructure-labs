@@ -1,0 +1,85 @@
+---
+- name: Initial setup
+  hosts: all
+  remote_user: user
+  become: yes
+  tasks:
+    - name: Setup interface
+      template:
+        src: templates/enp0s8.j2
+        dest: /etc/netplan/50-cloud-init.yaml
+      notify:
+        - netplan apply
+
+    - name: systemd-resolved
+      service:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+
+  handlers:
+    - name: netplan apply
+      shell: netplan apply
+
+- name: setup dns
+  hosts: dns
+  remote_user: user
+  become: yes
+  tasks:
+    - name: dns package
+      apt:
+        package: bind9
+
+    - name: config bind
+      template:
+        src: templates/named.conf.options.j2
+        dest: /etc/bind/named.conf.options
+      notify:
+        - restart bind
+        - check conf
+
+    - name: config bind.local
+      template:
+        src: templates/named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+      notify:
+        - restart bind
+        - check conf
+
+    - name: check changes
+      copy: 
+        content: "{{ resources|hash }}"
+        dest: /etc/bind/db.pythonux.hash
+      when: dns_role == "master"
+      notify:
+        - get timestamp
+        - check conf
+        - config db
+        - config db ptr
+        - bind reload db
+
+  handlers:
+    - name: get timestamp
+      shell: date +%s
+      register: ts
+
+    - name: config db
+      template:
+        src: templates/db.pythonux.j2
+        dest: /etc/bind/db.pythonux
+
+    - name: config db ptr
+      template:
+        src: templates/db.pythonux.ptr.j2
+        dest: /etc/bind/db.pythonux.ptr
+
+    - name: check conf
+      shell: named-checkconf
+
+    - name: restart bind
+      service:
+        name: bind9
+        state: restarted
+
+    - name: bind reload db
+      shell: rndc reload
