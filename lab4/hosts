@@ -1,2 +1,2 @@
 [devices]
-127.0.0.2 ansible_port=20022 ansible_ssh_user=user
+192.168.56.4 ansible_ssh_user=user

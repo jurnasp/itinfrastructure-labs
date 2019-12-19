@@ -9,7 +9,8 @@
 
   - name: apt install
     apt:
-      name: 
+      name:
+        - apt-transport-https
         - apache2
         - mysql-server
         - php
