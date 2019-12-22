@@ -1,0 +1,136 @@
+---
+- name: Install and configure apache server
+  hosts: infra01
+  remote_user: user
+  become: yes
+  tasks:
+   - name: installing Apache server
+     apt:
+       name: apache2
+       update_cache: yes
+     notify:
+      - start Apache
+
+   - name: modifying Apache to listen from 8080 port
+     lineinfile:
+        insertafter: Listen 80
+        line: Listen 8080
+        path: /etc/apache2/ports.conf
+
+   - name: creating DocumentRoot for port 8080
+     file:
+      path: /var/www/test
+      state: directory
+
+   - name: writing in the php test file
+     copy:
+       src: templates/wordpress/index.php
+       dest: /var/www/test/index.php
+
+   - name: installing php module for apache
+     apt:
+       name: "{{packets}}"
+       update_cache: yes
+     notify:
+       - restart Apache
+
+   - name: configuring wordpress
+     copy:
+       src: templates/wordpress/wordpress.conf
+       dest: /etc/apache2/sites-available/wordpress.conf
+     notify:
+       - enable wordpress
+       - reload Apache
+
+   - name: configuring wordpress to use the database
+     template:
+       src: templates/wordpress/config-192.168.56.4.php.j2
+       dest: /etc/wordpress/config-192.168.56.4.php
+
+   - name: setting port 80 to serve wordpress page and 8080 to serve the php info
+     copy:
+       src: templates/wordpress/000-default.conf
+       dest: /etc/apache2/sites-available/000-default.conf
+     notify:
+       - restart Apache
+
+  handlers:
+       - name: start Apache
+         service:
+            name: apache2
+            state: started
+
+       - name: restart Apache
+         service:
+            name: apache2
+            state: restarted
+
+       - name: reload Apache
+         service:
+            name: apache2
+            state: reloaded
+
+       - name: enable wordpress
+         shell: a2ensite wordpress
+
+
+
+- name: install and configure mysql server
+  hosts: infra01
+  remote_user: user
+  become: yes
+  tasks:
+  - name: installing mysql server
+    apt:
+      name: "{{dbpackets}}"
+      update_cache: yes
+
+  - name: creating wordpress database
+    mysql_db:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: wordpress
+        state: present
+
+  - name: creating demo database
+    mysql_db:
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      name: demo
+      state: present
+
+  - name: creating mysql db user for wordpress
+    mysql_user:
+         login_unix_socket: /var/run/mysqld/mysqld.sock
+         name: user
+         password: '{{mysql_password}}'
+         priv: 'wordpress.*:ALL'
+         state: present
+    notify:
+      - restart mysql
+
+  - name: creating mysql db user backupAgent
+    mysql_user:
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      name: backupAgent
+      priv: '*.*:ALL'
+      state: present
+    notify:
+      - restart mysql
+
+  - name: moving the bash script to create a basic table in demo
+    copy:
+      src: shell_scripts/createBasicTable
+      dest: /home/backupAgent/createBasicTable
+      owner: backupAgent
+      mode: 0764
+    notify:
+      - execute script
+
+  handlers:
+
+    - name: restart mysql
+      service:
+        name: mysql
+        state: restarted
+
+    - name: execute script
+      shell: /home/backupAgent/createBasicTable

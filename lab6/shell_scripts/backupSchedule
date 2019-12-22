@@ -1,0 +1,4 @@
+30 21 * * * backupAgent /var/backup/script/backup_script
+31 21 * * 1 backupAgent duplicity --no-encryption full /var/backup/files rsync://infra02.sbo.ttu//srv/backup/
+31 21 * * 2-7 backupAgent duplicity --no-encryption incremental /var/backup/files rsync://infra02.sbo.ttu//srv/backup/
+32 21 * * 1 backupAgent duplicity remove-older-than 30d --force rsync://infra02.sbo.ttu//srv/backup/

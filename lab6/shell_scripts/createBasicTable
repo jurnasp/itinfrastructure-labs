@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mysql -e 'DROP TABLE IF EXISTS wordpress.demo;'
+mysql -e 'CREATE TABLE wordpress.demo (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+val VARCHAR(20));'
+mysql -e 'INSERT INTO wordpress.demo (val) VALUES (10), (20);'

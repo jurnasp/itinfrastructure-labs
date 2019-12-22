@@ -1,0 +1,33 @@
+---
+  - name: Backup agent
+    hosts: infra01
+    remote_user: user
+    become: yes
+    tasks:
+      - name: Create backupAgent on infra01
+        user:
+          name: backupAgent
+          groups: adm, sudo
+          shell: /bin/bash
+          password: $6$vCQMeuaEX$4v5e0J6AM2wKHhJAEN/yf1I/NkfRrrs/Bkl.OGBBl8TUvYsiZo27hMi/ub52XNFQfLD1YWBGVV0gIPmp0tikF/
+
+      - name: Create .ssh dir
+        file:
+          path: /home/backupAgent/.ssh
+          state: directory
+          owner: backupAgent
+          mode: 0700
+
+      - name: Move ssh priv key
+        copy:
+          src: ~/backupAgent_ssh/id_rsa
+          dest: /home/backupAgent/.ssh/id_rsa
+          owner: backupAgent
+          mode: 0600
+
+      - name: Move ssh pub key
+        copy:
+          src: ~/backupAgent_ssh/id_rsa.pub
+          dest: /home/backupAgent/.ssh/id_rsa.pub
+          owner: backupAgent
+          mode: 0644

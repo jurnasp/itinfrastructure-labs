@@ -1,0 +1,9 @@
+---
+  - name: Configure wordpress
+    import_playbook: wordpress.yaml
+
+  - name: Configure dns
+    import_playbook: dns.yaml
+
+  - name: Configure the backup server
+    import_playbook: backup_server.yaml

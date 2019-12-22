@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mysqldump wordpress > /var/backup/files/wordpress.sql
+\cp /etc/apache2/ports.conf /var/backup/files/
+\cp /var/www/test/index.php /var/backup/files/
+\cp /etc/wordpress/config-192.168.56.4.php /var/backup/files/
+\cp /etc/apache2/sites-available/000-default.conf /var/backup/files/
+
+# backing up dns
+
+\cp /etc/bind/named.conf.options /var/backup/files/
+\cp /etc/bind/named.conf.local /var/backup/files/
+\cp /etc/resolv.conf /var/backup/files/
+\cp /etc/bind/db.sbo /var/backup/files/
+\cp /etc/bind/db.sbo.ptr /var/backup/files/

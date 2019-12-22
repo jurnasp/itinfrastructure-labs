@@ -1,0 +1,40 @@
+---
+- name: Backup server
+  hosts: infra01
+  remote_user: user
+  become: yes
+  tasks:
+
+    - name: Create script dir
+      file:
+        path: /var/backup/script
+        state: directory
+        owner: backupAgent
+        mode: 0764
+
+    - name: Move backup script
+      copy:
+        src: shell_scripts/backup_script
+        dest: /var/backup/script/
+        owner: backupAgent
+        mode: 0764
+
+    - name: Move restoration script
+      copy:
+        src: shell_scripts/restoration_script
+        dest: /var/backup/script/
+        owner: backupAgent
+        mode: 0764
+
+    - name: Move backup schedule to cron.d
+      copy:
+        src: shell_scripts/backupSchedule
+        dest: /etc/cron.d/
+      notify:
+        - apply schedule
+
+  handlers:
+    - name: apply schedule
+      service:
+        name: cron
+        state: restarted

@@ -1,0 +1,103 @@
+---
+  - name: VM setup
+    hosts: Init
+    remote_user: user
+    become: yes
+    tasks:
+      - name: Adding ssh keys
+        authorized_key:
+          user: user
+          key: https://github.com/JyrnasPluutus.keys
+
+      - name: Adding user to sudoers
+        copy:
+          dest: /etc/sudoers.d/user
+          content: "user    ALL = NOPASSWD:ALL"
+
+      - name: Setting up dns interface configuration
+        template:
+          src: templates/dns/55-enp0s8.j2
+          dest: /etc/netplan/55-enp0s8.yaml
+        notify:
+          - netplan apply
+
+      - name: Creating backupAgent
+        user:
+          name: backupAgent
+          groups: adm, sudo
+          shell: /bin/bash
+          password: $6$vCQMeuaEX$4v5e0J6AM2wKHhJAEN/yf1I/NkfRrrs/Bkl.OGBBl8TUvYsiZo27hMi/ub52XNFQfLD1YWBGVV0gIPmp0tikF/
+
+      - name: Install Duplicity
+        apt:
+          name: duplicity
+          update_cache: yes
+
+    handlers:
+      - name: netplan apply
+        shell: netplan apply
+
+  - name: Setup infra01
+    hosts: infra01
+    remote_user: user
+    become: yes
+    tasks:
+      - name: Make .ssh dir
+        file:
+          path: /home/backupAgent/.ssh
+          state: directory
+          owner: backupAgent
+          mode: 0700
+
+      - name: Move ssh keys to .ssh dir
+        copy:
+          src: ~/backupAgent_ssh/id_rsa
+          dest: /home/backupAgent/.ssh/id_rsa
+          owner: backupAgent
+          mode: 0600
+
+      - name: Move ssh keys to .ssh dir
+        copy:
+          src: ~/backupAgent_ssh/id_rsa.pub
+          dest: /home/backupAgent/.ssh/id_rsa.pub
+          owner: backupAgent
+          mode: 0644
+
+      - name: Make backup dir in infra01
+        file:
+          path: /var/backup
+          state: directory
+          owner: backupAgent
+          mode: 0764
+
+      - name: Make restore dir in infra01
+        file:
+          path: /var/backup/restore
+          state: directory
+          owner: backupAgent
+          mode: 0764
+
+      - name: Make backup dir in infra01
+        file:
+          path: /var/backup/files
+          state: directory
+          owner: backupAgent
+          mode: 0764
+
+  - name: Setup infra02
+    hosts: infra02
+    remote_user: user
+    become: yes
+    tasks:
+      - name: Move ssh keys for backupAgent
+        authorized_key:
+          user: backupAgent
+          key: "{{lookup('file', '~/backupAgent_ssh/id_rsa.pub')}}"
+
+      - name: Make /srv/backup dir
+        file:
+          path: /srv/backup
+          state: directory
+          recurse: yes
+          owner: backupAgent
+          mode: 0700

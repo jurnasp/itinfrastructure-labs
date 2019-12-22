@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#You will need to be sudo to restore the services
+# Restore the database
+mysql wordpress < /var/backup/restore/wordpress.sql
+
+#Restore the apache2 service after the installation
+
+systemctl stop apache2
+
+mv -f /var/backup/restore/ports.conf /etc/apache2/
+
+if [ ! -d "/var/www/test" ]; then
+mkdir /var/www/test
+fi
+
+mv -f /var/backup/restore/index.php /var/www/test/
+
+mv -f /var/backup/restore/config-192.168.* /etc/wordpress/
+
+mv -f /var/backup/restore/000-default.conf /etc/apache2/sites-available/
+
+systemctl restart apache2
+
+# restoring dns
+
+mv -f /var/backup/restore/named.conf.options /etc/bind/
+mv -f /var/backup/restore/named.conf.local /etc/bind/
+mv -f /var/backup/restore/resolv.conf /etc/
+mv -f /var/backup/restore/db.sbo /etc/bind/
+mv -f /var/backup/restore/db.sbo.ptr /etc/bind/
+
+rndc reload
+systemctl restart bind9

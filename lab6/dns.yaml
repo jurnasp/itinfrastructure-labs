@@ -1,0 +1,76 @@
+---
+  - name: Dns setup
+    hosts: VMs
+    remote_user: user
+    become: yes
+    tasks:
+      - name: Installing dns bind9 package
+        apt:
+          package: bind9
+
+      - name: Configure bind9
+        template:
+          src: templates/dns/named.conf.options.j2
+          dest: /etc/bind/named.conf.options
+        notify:
+          - restart bind
+          - check conf
+
+      - name: Configure bind.local
+        template:
+          src: templates/dns/named.conf.local.j2
+          dest: /etc/bind/named.conf.local
+        notify:
+          - restart bind
+          - check conf
+
+      - name: Overwriting resolv.conf
+        template:
+          src: templates/dns/resolv.conf
+          dest: /etc/resolv.conf
+        notify:
+          - stop systemd-resolved
+
+      - name: Overwriting db configurations
+        copy:
+          dest: /etc/bind/db.sbo.hash
+          content: "{{ dns_records | hash }}"
+        when: dns_role == "master"
+        notify:
+          - get timestamp
+          - configure db
+          - configure reverse db
+          - bind reload db
+          - restart bind
+
+    handlers:
+      - name: stop systemd-resolved
+        service:
+          name: systemd-resolved
+          state: stopped
+          enabled: no
+
+      - name: get timestamp
+        shell: date +%s
+        register: ts
+
+      - name: configure db
+        template:
+          src: templates/dns/db.sbo.j2
+          dest: /etc/bind/db.sbo
+
+      - name: configure reverse db
+        template:
+          src: templates/dns/db.sbo.ptr.j2
+          dest: /etc/bind/db.sbo.ptr
+
+      - name: bind reload db
+        shell: rndc reload
+
+      - name: restart bind
+        service:
+          name: bind9
+          state: restarted
+
+      - name: check conf
+        shell: named-checkconf
