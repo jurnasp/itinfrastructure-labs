@@ -1,0 +1,9 @@
+---
+ - name: restarting systemd
+   shell: "systemct daemon-reload"
+
+ - name: start bind_exporter
+   service:
+     name: bind_exporter
+     enabled: yes
+     state: started 

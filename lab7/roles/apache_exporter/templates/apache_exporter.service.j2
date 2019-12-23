@@ -1,0 +1,9 @@
+[Unit]
+Description=Apache Exporter
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/apache_exporter \
+
+[Install]
+WantedBy=multi-user.target
