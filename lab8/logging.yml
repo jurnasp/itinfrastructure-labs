@@ -1,0 +1,19 @@
+---
+ - name: Grafana install & config
+   hosts: infra01
+   become: yes
+   roles:
+     - grafana
+
+ - name: Influxdb & Telegraf install
+   hosts: infra02
+   become: yes
+   roles:
+     - influxdb
+
+ - name: Bind Install & Rsyslog config altering
+   hosts: VMs
+   become: yes
+   roles:
+     - bind
+     - rsyslog

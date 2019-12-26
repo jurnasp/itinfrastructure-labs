@@ -1,0 +1,40 @@
+---
+forwarders:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.10
+localnets:
+  - 192.168.56.0/24
+  - 10.0.2.0/24
+  - localhost
+dns_records:
+  - name: sbo.ttu.
+    type: NS
+    address: infra01.sbo.ttu.
+  - name: sbo.ttu.
+    type: NS
+    address: infra02.sbo.ttu.
+  - name: infra01.sbo.ttu.
+    type: A
+    address: "{{ hostvars[groups['VMs'][0]].ansible_host }}"
+  - name: infra02.sbo.ttu.
+    type: A
+    address: "{{ hostvars[groups['VMs'][1]].ansible_host }}"
+  - name: ns.sbo.ttu.
+    type: CNAME
+    address: infra01.sbo.ttu.
+  - name: web.sbo.ttu.
+    type: CNAME
+    address: infra01.sbo.ttu.
+  - name: prometheus.sbo.ttu.
+    type: CNAME
+    address: infra02.sbo.ttu.
+  - name: grafana.sbo.ttu.
+    type: CNAME
+    address: infra01.sbo.ttu.
+  - name: influxdb.sbo.ttu.
+    type: CNAME
+    address: infra02.sbo.ttu.
+  - name: db.sbo.ttu.
+    type: CNAME
+    address: infra02.sbo.ttu.

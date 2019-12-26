@@ -1,0 +1,17 @@
+---
+  - name: Place SSH Key
+    authorized_key:
+      user: user
+      key: https://github.com/JyrnasPluutus.keys
+
+  - name: Disable SUDO pass for user
+    copy:
+      dest: /etc/sudoers.d/user
+      content: "user    ALL = NOPASSWD:ALL"
+
+  - name: Configure interface
+    template:
+      src: 55-enp0s8.j2
+      dest: /etc/netplan/55-enp0s8.yaml
+    notify:
+      - netplan apply

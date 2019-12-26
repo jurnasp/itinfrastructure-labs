@@ -1,0 +1,48 @@
+- name: Install influxdb & dependencies
+  apt:
+    package: "{{package}}"
+    update_cache: yes
+
+- name: Install python modules
+  pip:
+    name: '{{module}}'
+
+- name: Create influxdb database
+  influxdb_database:
+    database_name: 'rtt'
+
+- name: Configure influxdb as service
+  service:
+    name: influxdb
+    enabled: yes
+
+- name: Move ping test
+  template:
+    src: testPing.sh
+    dest: /opt/testPing.sh
+    owner: user
+    mode: '0755'
+
+- name: Make ping test service
+  template:
+    src: testPing.service.j2
+    dest: /etc/systemd/system/testPing.service
+  notify:
+  - reload systemd
+  - start testPing
+
+- name: Download telegraf
+  get_url:
+    url: '{{telegraf_url}}'
+    dest: /opt/{{telegraf_deb}}
+
+- name: Install telegraf
+  apt:
+    deb: /opt/{{telegraf_deb}}
+
+- name: Configure telegraf
+  template:
+    src: telegraf.conf.j2
+    dest: /etc/telegraf/telegraf.conf
+  notify:
+    - restart telegraf
