@@ -1,0 +1,24 @@
+---
+  - name: Install docker
+    apt:
+      name: docker.io
+    notify:
+      - enable docker
+
+  - name: Install dependencies
+    apt:
+      package: python3-pip
+
+  - name: Pip install docker
+    pip:
+      name: docker
+
+  - name: Wp image pull
+    docker_image:
+      name: wordpress
+
+  - name: deploy wp
+    docker_container:
+      name: Mywordpress
+      image: wordpress
+      published_ports: 8080:80

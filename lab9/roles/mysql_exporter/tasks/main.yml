@@ -1,0 +1,43 @@
+- name: Download mysqld_exporter
+  get_url:
+    url: '{{mysqld_exporter_url}}'
+    dest: /opt/{{mysqld_exporter}}
+
+- name: Create mysqld_exporter dir
+  file:
+    state: directory
+    path: /opt/mysqld_exporter
+    mode: '0755'
+
+- name: Extract archive
+  unarchive:
+    src: /opt/{{ mysqld_exporter }}
+    dest: /opt/mysqld_exporter
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: Create database user
+  mysql_user:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    login_user: root
+    name: mysqld_exporter
+    password: '{{mysql_password}}'
+    host: localhost
+    priv: '*.*:PROCESS,REPLICATION CLIENT,SELECT'
+    state: present
+
+- name: Move cnf file
+  template:
+    src: mysqld_exporter.cnf.j2
+    dest: /etc/.mysqld_exporter.cnf
+    mode: '0755'
+
+- name: Move systemd file
+  template:
+    src:  mysql_exporter.service.j2
+    dest: /etc/systemd/system/mysql_exporter.service
+    mode: '0755'
+  notify:
+    - restart systemd
+    - start mysqld_exporter

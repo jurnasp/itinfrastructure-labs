@@ -1,0 +1,18 @@
+---
+  - name: Install & configure bind9
+    hosts: VMs
+    become: yes
+    roles:
+      - bind
+
+  - name: Install docker
+    hosts: infra01
+    become: yes
+    roles:
+      - wordpress_dameon
+
+  - name: Install and configure mysql
+    hosts: infra02
+    become: yes
+    roles:
+      - mysql

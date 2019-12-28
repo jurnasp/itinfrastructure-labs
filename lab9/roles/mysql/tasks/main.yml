@@ -1,0 +1,34 @@
+---
+  - name: Install mysql-server
+    apt:
+      name: "{{dbpackets}}"
+      update_cache: yes
+
+  - name: Create wp db
+    mysql_db:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: wordpress
+        state: present
+
+  - name: Create wp user in mysql
+    mysql_user:
+         login_unix_socket: /var/run/mysqld/mysqld.sock
+         name: wordpress
+         password: '{{mysql_password}}'
+         host: "{{ hostvars[groups['VMs'][0]].ansible_host }}"
+         priv: 'wordpress.*:ALL'
+         state: present
+    notify:
+      - restart mysql
+
+  - name: Config mysql for public interface listening
+    replace:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: " 127.0.0.1"
+      replace: " 0.0.0.0"
+
+  - name: Config mysql for access from "{{ hostvars[groups['VMs'][0]].ansible_host }}" (enable manually)
+    ufw:
+      rule: allow
+      port: '3306'
+      src: "{{ hostvars[groups['VMs'][0]].ansible_host }}"

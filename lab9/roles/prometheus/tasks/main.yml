@@ -1,0 +1,27 @@
+- name: Download prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v2.13.1/prometheus-{{version}}.linux-amd64.tar.gz
+    dest: /opt/prometheus-{{version}}.linux-amd64.tar.gz
+
+- name: Create prometheus dir
+  file:
+    state: directory
+    path: /opt/prometheus
+    mode: '0755'
+  notify:
+    - Extract the tar
+
+- name: Configure prometheus
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/prometheus/prometheus.yml
+  notify:
+    - restart prometheus
+
+- name: Systemd prometheus
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify:
+    - restart systemd
+    - start prometheus

@@ -1,0 +1,6 @@
+---
+  - name: Initialize the VMs
+    hosts: Init
+    become: yes
+    roles:
+      - init

@@ -1,0 +1,25 @@
+acl abc{
+{% for ip in localnets %}
+{{ ip }};
+{% endfor %}
+};
+options {
+directory "/var/cache/bind";
+
+forwarders {
+{% for ip in forwarders %}
+{{ip}};
+{% endfor %}
+};
+
+dnssec-validation auto;
+allow-query {
+abc;
+};
+auth-nxdomain no;
+listen-on-v6 {any;};
+};
+
+statistics-channels {
+  inet 127.0.0.1 port 8053 allow { 127.0.0.1; };
+};

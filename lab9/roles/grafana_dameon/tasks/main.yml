@@ -1,0 +1,24 @@
+---
+  - name: Install docker
+    apt:
+      name: docker.io
+    notify:
+      - enable docker
+
+  - name: Install dependencies
+    apt:
+      package: python3-pip
+
+  - name: Pip install docker
+    pip:
+      name: docker
+
+  - name: Grafana image pull
+    docker_image:
+      name: grafana/grafana
+
+  - name: Deploy grafana
+    docker_container:
+      name: MyGrafana
+      image: grafana/grafana
+      published_ports: 3000:3000

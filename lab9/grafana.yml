@@ -1,0 +1,13 @@
+---
+  - name: Install & configure prometheus and mysql_exporter
+    hosts: infra02
+    become: yes
+    roles:
+      - prometheus
+      - mysql_exporter
+
+  - name: Deploy grafana + docker
+    hosts: infra01
+    become: yes
+    roles:
+      - grafana_dameon
