@@ -1,0 +1,9 @@
+[Unit]
+Description=testPing
+
+[Service]
+User=user
+ExecStart=/opt/testPing.sh
+
+[Install]
+WantedBy=multi-user.target

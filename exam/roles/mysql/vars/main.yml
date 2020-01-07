@@ -1,0 +1,2 @@
+---
+  dbpackets: ['default-mysql-server', 'python3-pymysql']

@@ -1,0 +1,31 @@
+---
+  - name: stop systemd-resolved
+    service:
+      name: systemd-resolved
+      state: stopped
+      enabled: no
+
+  - name: get timestamp
+    shell: date +%s
+    register: ts
+
+  - name: configuring db
+    template:
+      src: db.exm.j2
+      dest: /etc/bind/db.exm
+
+  - name: configuring reverse db
+    template:
+      src: db.exm.ptr.j2
+      dest: /etc/bind/db.exm.ptr
+
+  - name: bind reload db
+    shell: rndc reload
+
+  - name: restart bind
+    service:
+      name: bind9
+      state: restarted
+
+  - name: check conf
+    shell: named-checkconf

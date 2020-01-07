@@ -1,0 +1,31 @@
+---
+  - name: Install docker
+    apt:
+      name: docker.io
+    notify:
+      - enable docker
+
+  - name: Install dependencies
+    apt:
+      package: python3-pip
+
+  - name: Pip install docker
+    pip:
+      name: docker
+
+  - name: Wp image pull
+    docker_image:
+      name: wordpress
+
+  - name: Deploy wp
+    docker_container:
+      name: '{{item.name}}'
+      image: wordpress
+      published_ports: '{{item.published_ports}}'
+      restart_policy: always
+      env:
+        WORDPRESS_DB_HOST: db.exm.ttu
+        WORDPRESS_DB_NAME: wordpress
+        WORDPRESS_DB_USER: wordpress
+        WORDPRESS_DB_PASSWORD: '{{mysql_password}}'
+    with_items: '{{instance}}'

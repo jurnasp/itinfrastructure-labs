@@ -1,0 +1,6 @@
+- name: configuring rsyslog
+  template:
+    src: 51-telegraf.conf
+    dest: /etc/rsyslog.d/51-telegraf.conf
+  notify:
+    - restart rsyslog

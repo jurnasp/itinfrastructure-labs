@@ -1,0 +1,6 @@
+---
+  - name: enable docker.io
+    service:
+      name: docker
+      state: started
+      enabled: yes

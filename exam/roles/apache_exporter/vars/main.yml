@@ -1,0 +1,4 @@
+apache_exporter_link: github.com/Lusitaniae/apache_exporter
+
+go_link: https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
+go_tar: go1.13.3.linux-amd64.tar.gz

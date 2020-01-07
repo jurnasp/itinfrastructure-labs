@@ -1,0 +1,47 @@
+---
+forwarders:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.10
+localnets:
+  - 192.168.56.0/24
+  - 10.0.2.0/24
+  - 192.168.56.1
+  - localhost
+dns_records:
+  - name: exm.ttu.
+    type: NS
+    address: infra01.exm.ttu.
+  - name: exm.ttu.
+    type: NS
+    address: infra02.exm.ttu.
+  - name: infra01.exm.ttu.
+    type: A
+    address: "{{ hostvars[groups['VMs'][0]].ansible_host }}"
+  - name: infra02.exm.ttu.
+    type: A
+    address: "{{ hostvars[groups['VMs'][1]].ansible_host }}"
+  - name: ns.exm.ttu.
+    type: CNAME
+    address: infra01.exm.ttu.
+  - name: www.exm.ttu.
+    type: CNAME
+    address: infra01.exm.ttu.
+  - name: web.exm.ttu.
+    type: CNAME
+    address: infra01.exm.ttu.
+  - name: prometheus.exm.ttu.
+    type: CNAME
+    address: infra02.exm.ttu.
+  - name: grafana.exm.ttu.
+    type: CNAME
+    address: infra01.exm.ttu.
+  - name: backup.exm.ttu.
+    type: CNAME
+    address: infra02.exm.ttu.
+  - name: influxdb.exm.ttu.
+    type: CNAME
+    address: infra02.exm.ttu.
+  - name: db.exm.ttu.
+    type: CNAME
+    address: infra02.exm.ttu.

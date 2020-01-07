@@ -1,0 +1,27 @@
+zone "exm.ttu" {
+{% if dns_role == "master" %}
+type master;
+file "/etc/bind/db.exm";
+allow-transfer {192.168.56.5;};
+{% else %}
+type slave;
+file "/var/lib/bind/db.exm";
+masters {
+{{ master_ip }};
+};
+{% endif %}
+};
+
+zone "56.168.192.in-addr.arpa" {
+{% if dns_role == "master" %}
+      type master;
+      file "/etc/bind/db.exm.ptr";
+allow-transfer {192.168.56.5;};
+{%else%}
+type slave;
+file "/etc/bind/db.exm.ptr";
+masters {
+{{ master_ip }};
+};
+{%endif%}
+};

@@ -1,0 +1,27 @@
+---
+  - name: Install and configure bind, rsyslog and node_exporter
+    hosts: VMs
+    become: yes
+    roles:
+      - bind
+      - rsyslog
+      - node_exporter
+
+  - name: Configure infra02
+    hosts: infra02
+    become: yes
+    roles:
+      - mysql
+      - prometheus
+      - mysql_exporter
+      - grafana
+      - influxdb
+
+  - name: Configure infra01
+    hosts: infra01
+    become: yes
+    roles:
+      - wordpress
+      - HAProxy
+      - apache_exporter
+      - bind_exporter

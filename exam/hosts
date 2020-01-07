@@ -1,0 +1,8 @@
+[Init]
+init01 ansible_host=0.0.0.0 ansible_ssh_port=20022 ansible_python_interpreter=python3 ansible_user=user
+init02 ansible_host=0.0.0.0 ansible_ssh_port=20023 ansible_python_interpreter=python3 ansible_user=user
+
+
+[VMs]
+infra01 ansible_host=192.168.56.4 ansible_python_interpreter=python3 ansible_user=user
+infra02 ansible_host=192.168.56.5 ansible_python_interpreter=python3 ansible_user=user

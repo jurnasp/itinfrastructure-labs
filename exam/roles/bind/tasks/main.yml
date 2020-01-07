@@ -1,0 +1,39 @@
+---
+  - name: Install bind
+    apt:
+      package: bind9
+
+  - name: Configure bind
+    template:
+      src: named.conf.options.j2
+      dest: /etc/bind/named.conf.options
+    notify:
+      - restart bind
+      - check conf
+
+  - name: Configure bind.local
+    template:
+      src: named.conf.local.j2
+      dest: /etc/bind/named.conf.local
+    notify:
+      - restart bind
+      - check conf
+
+  - name: Alter resolv.conf
+    template:
+      src: resolv.conf
+      dest: /etc/resolv.conf
+    notify:
+      - stop systemd-resolved
+
+  - name: Has db config changed
+    copy:
+      dest: /etc/bind/db.exm.hash
+      content: "{{ dns_records | hash }}"
+    when: dns_role == "master"
+    notify:
+      - get timestamp
+      - configuring db
+      - configuring reverse db
+      - bind reload db
+      - restart bind

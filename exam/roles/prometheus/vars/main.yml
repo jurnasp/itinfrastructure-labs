@@ -1,0 +1,20 @@
+---
+  version: 2.13.1
+
+  jobs:
+    - name: linux
+      targets:
+        - 'infra01.exm.ttu:9100'
+        - 'infra02.exm.ttu:9100'
+
+    - name: mysql_exporter
+      targets:
+        - 'infra02.exm.ttu:9104'
+
+    - name: apache_exporter
+      targets:
+        - 'infra01.exm.ttu:9117'
+
+    - name: bind_exporter
+      targets:
+        - 'infra01.exm.ttu:9119'
