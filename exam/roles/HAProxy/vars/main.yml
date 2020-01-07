@@ -1,6 +1,6 @@
 ---
 instance:
   - name: Wordpress01
-    published_ports: 8081:80
+    published_ports: 8083:80
   - name: Wordpress02
-    published_ports: 8082:80
+    published_ports: 8084:80

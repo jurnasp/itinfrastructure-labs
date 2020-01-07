@@ -25,7 +25,6 @@
     password: '{{mysql_password}}'
     host: localhost
     priv: '*.*:PROCESS,REPLICATION CLIENT,SELECT'
-    state: present
 
 - name: Move cnf file
   template:
